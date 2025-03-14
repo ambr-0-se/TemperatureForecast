@@ -18,7 +18,7 @@ We experimented with different machine learning models and graph neural networks
 
 ## To run the code
 1. Download or clone the directory
-2. Navigate to the directory `/temperature_prediction`
+2. Navigate to the directory `/TemperatureForecast`
 3. Set up the conda environment with ```conda env create -f environment.yml``` and activate the environment with ```conda activate weather_forecast```
 4. Adjust the hyperparameters in config.py
 5. Train and evaluate the models with ```python main.py```
