@@ -1,0 +1,27 @@
+,time (in sec)
+ytd_model,0.0
+my_GCN_1layer,44.96227169036865
+my_GCN_with_edge_attr_1layer,45.66610256830851
+my_GAT_1layer,61.315456310908
+my_GAT_with_edge_attr_1layer,72.95364300409953
+GraphSAGE_1layer,6.817155361175537
+my_GCN_2layers,67.70622698465984
+my_GCN_with_edge_attr_2layers,70.63253490130107
+my_GAT_2layers,122.04592609405518
+my_GAT_with_edge_attr_2layers,144.5806349913279
+GraphSAGE_2layers,25.431273063023884
+my_GCN_3layers,88.79968333244324
+my_GCN_with_edge_attr_3layers,90.09169101715088
+my_GAT_3layers,172.05337834358215
+my_GAT_with_edge_attr_3layers,197.54617365201315
+GraphSAGE_3layers,45.011245330174766
+my_GCN_4layers,96.14532272020976
+my_GCN_with_edge_attr_4layers,106.06394092241923
+my_GAT_4layers,225.73599672317505
+my_GAT_with_edge_attr_4layers,268.6233012676239
+GraphSAGE_4layers,68.13916405042012
+my_GCN_5layers,120.240794022878
+my_GCN_with_edge_attr_5layers,121.04570007324219
+my_GAT_5layers,280.3817533651988
+my_GAT_with_edge_attr_5layers,333.770974000295
+GraphSAGE_5layers,91.24540837605794

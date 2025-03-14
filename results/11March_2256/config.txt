@@ -1,0 +1,47 @@
+Data preprocessing config:
+  Neighbors per station: 3
+  Time series: False
+  Temporal window: 3
+
+Training config:
+  Train times: 3
+  Epochs: 100
+  Batch size: 64
+
+Models config:  _GCN:
+      Model: <class 'models.GCN'>
+      hidden_channels: 128
+      num_layers: 3
+      dropout: 0.2
+  _GCN_with_edge_attr:
+      Model: <class 'models.GCN'>
+      hidden_channels: 128
+      num_layers: 3
+      dropout: 0.2
+  _GAT:
+      Model: <class 'models.GAT'>
+      hidden_channels: 128
+      num_layers: 3
+      dropout: 0.2
+  _GAT_with_edge_attr:
+      Model: <class 'models.GAT'>
+      hidden_channels: 128
+      num_layers: 3
+      dropout: 0.2
+  _GraphSAGE:
+      Model: <class 'models.GraphSAGE'>
+      hidden_channels: 128
+      num_layers: 3
+      dropout: 0.2
+
+  _LinearRegression:
+      Model: <class 'models.LinearRegression'>
+  _MLP:
+      Model: <class 'models.MLP'>
+      hidden_size: 128
+      num_layers: 3
+  _RandomForest:
+      Model: <class 'models.RandomForestRegression'>
+      n_estimators: 100
+      max_depth: None
+

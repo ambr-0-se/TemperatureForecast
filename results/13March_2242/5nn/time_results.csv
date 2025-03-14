@@ -1,0 +1,7 @@
+,time (in sec)
+ytd_model,0.0
+my_GAT_with_edge_attr,123.69581000010173
+GraphSAGE,17.620596647262573
+LinearRegression,0.0937950611114502
+MLP,0.9038493633270264
+RandomForest,13.384727398554483

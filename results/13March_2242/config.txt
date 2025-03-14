@@ -1,0 +1,32 @@
+Data preprocessing config:
+  Neighbors per station: [1, 5, 10]
+  Time series: False
+  Temporal window: 1
+
+Training config:
+  Train times: 3
+  Epochs: 100
+  Batch size: 256
+
+Models config:  _my_GAT_with_edge_attr:
+      Model: <class 'models.my_GAT'>
+      use_edge_attr: True
+      hidden_size: 128
+      num_layers: 2
+  _GraphSAGE:
+      Model: <class 'models.GraphSAGE'>
+      hidden_channels: 128
+      num_layers: 2
+      dropout: 0.2
+
+  _LinearRegression:
+      Model: <class 'models.LinearRegression'>
+  _MLP:
+      Model: <class 'models.MLP'>
+      hidden_size: 128
+      num_layers: 3
+  _RandomForest:
+      Model: <class 'models.RandomForestRegression'>
+      n_estimators: 100
+      max_depth: None
+

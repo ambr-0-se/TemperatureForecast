@@ -1,0 +1,19 @@
+name: weather_forecast
+dependencies:
+  - python
+  - numpy
+  - matplotlib
+  - pandas
+  - basemap
+  - tensorflow
+  - scikit-learn
+  - seaborn
+  - tqdm
+  - ipywidgets
+  - ipykernel
+  - pip:
+      - bs4
+      - torch
+      - torchvision
+      - torchaudio
+      - torch_geometric

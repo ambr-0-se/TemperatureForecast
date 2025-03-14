@@ -1,0 +1,7 @@
+,time (in sec)
+ytd_model,0.0
+my_GCN,167.03313763936362
+my_GCN_with_edge_attr,114.21015310287476
+my_GAT,217.29143206278482
+my_GAT_with_edge_attr,260.1343203385671
+GraphSAGE,61.048418045043945
