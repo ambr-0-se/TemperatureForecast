@@ -15,6 +15,7 @@ We experimented with different machine learning models and graph neural networks
 2. `/feature` stores the graph containing 18 staions with attributes, and graphs (with node and edge features) split into train, dev and test set
 3. `/result` stores the new evaluation result of different models and hyperparameter settings
 4. `/result_comparison` is a collection of previous results that compare against different models `/result_comparison/initial`, and the impact of number of edges per station, temporal window, number of layers and batch size
+5. `Paper.pdf` summarises the findings of the projects.
 
 ## To run the code
 1. Download or clone the directory
