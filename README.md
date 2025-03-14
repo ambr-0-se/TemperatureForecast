@@ -8,7 +8,7 @@ We retrieved a weather dataset from European Climate Assessment & Dataset (ECA&D
 We experimented with different machine learning models and graph neural networks to predict the mean temperature. We evaluated the accuracy of different models with mean square error, and examined how number of layers and batch size affect the performance of the model.
 
 
-![region graph with 1NN](region_graph.png)
+![region graph with 1NN](region_graph.png?width=300)
 
 ## Explanation of the file structure
 1. `/data` stores the original location and the daily observations of the 18 stations 
