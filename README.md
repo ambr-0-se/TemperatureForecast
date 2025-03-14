@@ -23,7 +23,7 @@ We experimented with different machine learning models and graph neural networks
 3. Set up the conda environment with ```conda env create -f environment.yml``` and activate the environment with ```conda activate weather_forecast```
 4. Adjust the hyperparameters in `config.py`
 5. Train and evaluate the models with ```python main.py```
-6. Check the results in `\results`
+6. Check the results in `/results`
 
 ## References
 [1] Klein Tank, A.M.G. and Coauthors, 2002. Daily dataset of 20th-century surface air temperature and precipitation series for the European Climate Assessment. Int. J. of Climatol., 22, 1441-1453. Data and metadata available at http://www.ecad.eu
