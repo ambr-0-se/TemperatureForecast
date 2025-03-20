@@ -1,6 +1,6 @@
 # Evaluation of Graph Neural Network on Temperature Forecast
 
-## Introductioon
+## Introduction
 Weather forecast has been playing a critical role in contemporary society, and improving the accuracy of temperature forecast could bring numerous social and economic benefits. In this project, our objective is to evaluate different techniques, and these results are going to serve as the foundation for more complicated weather prediction task in the future. 
 
 We retrieved a weather dataset from European Climate Assessment & Dataset (ECA&D), which contains the daily observations from 2000-2010 at 18 meteorological stations in Europe. The objective is to train models that predict the mean temperature of the coming day using previous spectral and temporal features.
