@@ -84,11 +84,15 @@ def split_data(indices, time_series=False, temporal_window=1):
     if not time_series:
         # Remove initial temporal_window indices needed for prediction
         valid_indices = indices[temporal_window:]
-        np.random.shuffle(valid_indices)
+        # np.random.shuffle(valid_indices)
         
         # Split into 80% train, 10% validation, 10% test
         train_size = int(0.8 * len(valid_indices))
         val_size = int(0.9 * len(valid_indices))
+
+        print(f'train indices: {valid_indices[0]}, {valid_indices[1]}, ..., {valid_indices[train_size-2]}, {valid_indices[train_size-1]}')
+        print(f'val indices: {valid_indices[train_size]}, {valid_indices[train_size+1]}, ..., {valid_indices[val_size-2]}, {valid_indices[val_size-1]}')
+        print(f'test indices: {valid_indices[val_size]}, {valid_indices[val_size+1]}, ..., {valid_indices[len(valid_indices)-2]}, {valid_indices[len(valid_indices)-1]}')
         
         return (
             valid_indices[:train_size],
@@ -200,7 +204,7 @@ def train_and_evaluate_models(graph_features, gnn_dims, tabular_features, tabula
         temp_results = []
         start_time = time.time()
         # if model_config['name'] not in ['GCN', 'GCN_with_edge_attr', 'GAT', 'GAT_with_edge_attr', 'GraphSAGE']:
-        if 'GraphSAGE' not in model_config['name']:
+        if 'my' in model_config['name']:
             for i in range(train_times):
                 model = model_config['model'](
                     num_features=gnn_dims['input of each node'],
@@ -485,13 +489,14 @@ def main(neighbors_per_station, time_series, temporal_window, train_times, batch
         dataset_indices, 
         time_series, 
         temporal_window
-    )
+    ) # TODO: Random split -> Time-based split
     print(f"- Split sizes: Train={len(train_indices)}, Val={len(val_indices)}, Test={len(test_indices)}")
 
     # 3. Generate features
     print("\n3. Generating Features...")
     _ = create_graph_dataset(
         weather_data, 
+        node_coor,
         edge_index, 
         edge_attr, 
         threshold=0.8, 

@@ -311,14 +311,14 @@ class RandomForestRegression(Model):
 
 # NN Model
 # MLP
-# Recurrent Neural Network
-# Long Short-Term Memory Network
+
 
 # GNN Model
 class GNN(torch.nn.Module):
-    def __init__(self, use_edge_attr=False):
+    def __init__(self, use_edge_attr=False, num_attn_heads=0):
         super().__init__()
         self.use_edge_attr = use_edge_attr
+        self.num_attn_heads = num_attn_heads
 
     def train_model(self, train_loader, validation_loader, test_loader, epochs=200):
         training_loss = []
@@ -479,10 +479,32 @@ class GNN(torch.nn.Module):
 
 # GCN Model
 class my_GCN(GNN):
-    def __init__(self, num_features, num_outputs, hidden_size=64, num_layers=3, use_edge_attr=False):
-        super().__init__(use_edge_attr)
+    def __init__(self, num_features, num_outputs, hidden_size=64, num_layers=3, use_edge_attr=False, num_attn_heads=0):
+        super().__init__(use_edge_attr, num_attn_heads)
+        if num_attn_heads > 0:
+            self.time_and_location_dim = 11
+            self.weather_dim = 8
+            self.window_size = (num_features - self.time_and_location_dim) // self.weather_dim
+            self.feature_dim = self.time_and_location_dim + self.weather_dim
+            self.num_features = self.feature_dim * self.window_size
+
+            self.attn = nn.MultiheadAttention(embed_dim=self.feature_dim, num_heads=num_attn_heads, batch_first=True)
+            self.pos_embedding = nn.Parameter(torch.randn(self.window_size, self.feature_dim)) # Learnable Positional Embeddings: [T, F]
+            self.norm1 = nn.LayerNorm(self.num_features)
+        
+            self.ff = nn.Sequential(
+                nn.Linear(self.num_features, self.num_features),
+                nn.ReLU(),
+                nn.Dropout(0.2),
+                nn.Linear(self.num_features, self.num_features)
+            )
+            self.norm2 = nn.LayerNorm(self.num_features)
+
+        else:
+            self.num_features = num_features
+        
         self.convs = nn.ModuleList()
-        self.convs.append(GCNConv(num_features, hidden_size))
+        self.convs.append(GCNConv(self.num_features, hidden_size))
         for _ in range(1, num_layers):
             self.convs.append(GCNConv(hidden_size, hidden_size))
         self.fc = nn.Linear(hidden_size, 1)  # One output per node
@@ -492,7 +514,33 @@ class my_GCN(GNN):
         self.criterion = nn.MSELoss()
 
     def forward(self, data):
-        x, edge_index = data.x, data.edge_index
+        if self.num_attn_heads > 0:
+            x, edge_index = data.x, data.edge_index
+            # print(f'x.shape: {x.shape}')
+            time_and_location = x[:, :self.time_and_location_dim]
+            x = torch.cat(
+                [
+                    time_and_location.unsqueeze(1).expand(-1, self.window_size, -1),
+                    x[:, self.time_and_location_dim:].reshape(x.shape[0], self.window_size, self.weather_dim)
+                ],
+                dim=-1
+            )
+            # print(f'x.shape after concatenate weather with time and location: {x.shape}')
+            x = x + self.pos_embedding.unsqueeze(0).expand(x.shape[0], -1, -1)
+            # print(f'x.shape after adding positional embeddings: {x.shape}')
+            attn_out, _ = self.attn(x, x, x) # x + self.attn(x, x, x)
+            # print(f'attn_out.shape after attention: {attn_out.shape}')
+            attn_out = attn_out.reshape(attn_out.shape[0], -1)
+            # print(f'attn_out.shape after reshape: {attn_out.shape}')
+            x = x.reshape(x.shape[0], -1)
+            # print(f'x.shape after reshape: {x.shape}')
+
+            x = self.norm1(x+attn_out)
+            x = self.ff(x)
+            x = self.norm2(x)
+            # print(f'x.shape after norm and ff: {x.shape}')
+        else:
+            x, edge_index = data.x, data.edge_index
         if self.use_edge_attr and hasattr(data, 'edge_attr'):
             edge_attr = data.edge_attr
             # Convert edge attributes to weights (inverse distance)
@@ -519,13 +567,35 @@ class my_GCN(GNN):
         pass
 
 class my_GAT(GNN):
-    def __init__(self, num_features, num_outputs, hidden_size=64, num_layers=3, use_edge_attr=False):
-        super().__init__(use_edge_attr)
+    def __init__(self, num_features, num_outputs, hidden_size=64, num_layers=3, use_edge_attr=False, num_attn_heads=0):
+        super().__init__(use_edge_attr, num_attn_heads)
+
+        if num_attn_heads > 0:
+            self.time_and_location_dim = 11
+            self.weather_dim = 8
+            self.window_size = (num_features - self.time_and_location_dim) // self.weather_dim
+            self.feature_dim = self.time_and_location_dim + self.weather_dim
+            self.num_features = self.feature_dim * self.window_size
+
+            self.attn = nn.MultiheadAttention(embed_dim=self.feature_dim, num_heads=num_attn_heads, batch_first=True)
+            self.pos_embedding = nn.Parameter(torch.randn(self.window_size, self.feature_dim)) # Learnable Positional Embeddings: [T, F]
+            self.norm1 = nn.LayerNorm(self.num_features)
+        
+            self.ff = nn.Sequential(
+                nn.Linear(self.num_features, self.num_features),
+                nn.ReLU(),
+                nn.Dropout(0.2),
+                nn.Linear(self.num_features, self.num_features)
+            )
+            self.norm2 = nn.LayerNorm(self.num_features)
+
+        else:
+            self.num_features = num_features
         edge_dim = 1 if use_edge_attr else None
         
         self.convs = nn.ModuleList()
         for i in range(num_layers):
-            in_channels = num_features if i == 0 else hidden_size
+            in_channels = self.num_features if i == 0 else hidden_size
             self.convs.append(GATConv(in_channels, hidden_size, heads=4, concat=False, edge_dim=edge_dim))
         
         self.fc = nn.Linear(hidden_size, 1)  # One output per node
@@ -535,7 +605,33 @@ class my_GAT(GNN):
         self.criterion = nn.MSELoss()
     
     def forward(self, data):
-        x, edge_index = data.x, data.edge_index
+        if self.num_attn_heads > 0:
+            x, edge_index = data.x, data.edge_index
+            # print(f'x.shape: {x.shape}')
+            time_and_location = x[:, :self.time_and_location_dim]
+            x = torch.cat(
+                [
+                    time_and_location.unsqueeze(1).expand(-1, self.window_size, -1),
+                    x[:, self.time_and_location_dim:].reshape(x.shape[0], self.window_size, self.weather_dim)
+                ],
+                dim=-1
+            )
+            # print(f'x.shape after concatenate weather with time and location: {x.shape}')
+            x = x + self.pos_embedding.unsqueeze(0).expand(x.shape[0], -1, -1)
+            # print(f'x.shape after adding positional embeddings: {x.shape}')
+            attn_out, _ = self.attn(x, x, x) # x + self.attn(x, x, x)
+            # print(f'attn_out.shape after attention: {attn_out.shape}')
+            attn_out = attn_out.reshape(attn_out.shape[0], -1)
+            # print(f'attn_out.shape after reshape: {attn_out.shape}')
+            x = x.reshape(x.shape[0], -1)
+            # print(f'x.shape after reshape: {x.shape}')
+
+            x = self.norm1(x+attn_out)
+            x = self.ff(x)
+            x = self.norm2(x)
+            # print(f'x.shape after norm and ff: {x.shape}')
+        else:
+            x, edge_index = data.x, data.edge_index
         
         if self.use_edge_attr and hasattr(data, 'edge_attr'):
             edge_attr = data.edge_attr
@@ -555,10 +651,32 @@ class my_GAT(GNN):
         pass
 
 class my_GraphSAGE(GNN):
-    def __init__(self, num_features, num_outputs, hidden_size=64, num_layers=3, use_edge_attr=False):
-        super().__init__(use_edge_attr)
+    def __init__(self, num_features, num_outputs, hidden_size=64, num_layers=3, use_edge_attr=False, num_attn_heads=0):
+        super().__init__(use_edge_attr, num_attn_heads)
+        if num_attn_heads > 0:
+            self.time_and_location_dim = 11
+            self.weather_dim = 8
+            self.window_size = (num_features - self.time_and_location_dim) // self.weather_dim
+            self.feature_dim = self.time_and_location_dim + self.weather_dim
+            self.num_features = self.feature_dim * self.window_size
+
+            self.attn = nn.MultiheadAttention(embed_dim=self.feature_dim, num_heads=num_attn_heads, batch_first=True)
+            self.pos_embedding = nn.Parameter(torch.randn(self.window_size, self.feature_dim)) # Learnable Positional Embeddings: [T, F]
+            self.norm1 = nn.LayerNorm(self.num_features)
+        
+            self.ff = nn.Sequential(
+                nn.Linear(self.num_features, self.num_features),
+                nn.ReLU(),
+                nn.Dropout(0.2),
+                nn.Linear(self.num_features, self.num_features)
+            )
+            self.norm2 = nn.LayerNorm(self.num_features)
+
+        else:
+            self.num_features = num_features
         self.convs = nn.ModuleList()
-        self.convs.append(SAGEConv(num_features, hidden_size))
+        # self.convs.append(SAGEConv(self.num_features, hidden_size))
+        self.convs.append(SAGEConv(self.num_features, hidden_size))
         for _ in range(1, num_layers):
             self.convs.append(SAGEConv(hidden_size, hidden_size))
         self.fc = nn.Linear(hidden_size, 1)  # One output per node
@@ -568,7 +686,40 @@ class my_GraphSAGE(GNN):
         self.criterion = nn.MSELoss()
     
     def forward(self, data):
-        x, edge_index = data.x, data.edge_index
+        if self.num_attn_heads > 0:
+            x, edge_index = data.x, data.edge_index
+            # print(f'x.shape: {x.shape}')
+            time_and_location = x[:, :self.time_and_location_dim]
+            x = torch.cat(
+                [
+                    time_and_location.unsqueeze(1).expand(-1, self.window_size, -1),
+                    x[:, self.time_and_location_dim:].reshape(x.shape[0], self.window_size, self.weather_dim)
+                ],
+                dim=-1
+            )
+            # print(f'x.shape after concatenate weather with time and location: {x.shape}')
+            x = x + self.pos_embedding.unsqueeze(0).expand(x.shape[0], -1, -1)
+            # print(f'x.shape after adding positional embeddings: {x.shape}')
+            attn_out, _ = self.attn(x, x, x) # x + self.attn(x, x, x)
+            # print(f'attn_out.shape after attention: {attn_out.shape}')
+            # print(f'x.shape after reshape: {x.shape}')
+
+            attn_out = attn_out.reshape(attn_out.shape[0], -1)
+            # # print(f'attn_out.shape after reshape: {attn_out.shape}')
+            x = x.reshape(x.shape[0], -1)
+            # # print(f'x.shape after reshape: {x.shape}')
+
+            x = self.norm1(x+attn_out)
+            x = self.ff(x)
+            x = self.norm2(x)
+            # print(f'x.shape before mean: {x.shape}')
+            # x = x.mean(dim=1)
+            # print(f'x.shape after mean: {x.shape}')
+            # print(f'x.shape after norm and ff: {x.shape}')
+        else:
+            x, edge_index = data.x, data.edge_index
+
+        # print(f'attn_heads: {self.num_attn_heads}')
         
         # GraphSAGE aggregates neighbor information without edge weights
         for conv in self.convs:

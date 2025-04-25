@@ -9,13 +9,13 @@ from models import ytd_model
 PROJECT_ROOT = os.path.dirname(__file__)
 
 # data preprocessing config
-neighbors_per_station = [1] # number of neighbors (k-nearest neighbors)
+neighbors_per_station = 3 # number of neighbors (k-nearest neighbors)
 time_series = False
-temporal_window = 1
+temporal_window = [1,3,5]
 
 # training config
-train_times = 3
-epochs = 100
+train_times = 2
+epochs = 150
 batch_size = 256 # [1, 4, 32, 64, 256]
 
 # models config
@@ -24,20 +24,32 @@ batch_size = 256 # [1, 4, 32, 64, 256]
 baseline_configs = [
     {'name': 'ytd_model', 'model': ytd_model}
 ]
-
 gnn_model_configs = [
-    {'name': 'my_GCN', 'model': my_GCN, 'hyperparameters': {'use_edge_attr': False, 'hidden_size': 128, 'num_layers': 1}},
-    {'name': 'my_GCN_with_edge_attr', 'model': my_GCN, 'hyperparameters': {'use_edge_attr': True, 'hidden_size': 128, 'num_layers': 1}},
-    {'name': 'my_GAT', 'model': my_GAT, 'hyperparameters': {'use_edge_attr': False, 'hidden_size': 128, 'num_layers': 1}},
-    {'name': 'my_GAT_with_edge_attr', 'model': my_GAT, 'hyperparameters': {'use_edge_attr': True, 'hidden_size': 128, 'num_layers': 2}},
-    {'name': 'GraphSAGE', 'model': GraphSAGE, 'hyperparameters': {'hidden_channels': 128, 'num_layers': 2, 'dropout': 0.2}, 'use_edge_attr': False}
+    {'name': 'my_GCN', 'model': my_GCN, 'hyperparameters': {'use_edge_attr': False, 'hidden_size': 128, 'num_layers': 1, 'num_attn_heads': 1}},
+    {'name': 'my_GCN_with_edge_attr', 'model': my_GCN, 'hyperparameters': {'use_edge_attr': True, 'hidden_size': 128, 'num_layers': 1, 'num_attn_heads': 1}},
+    {'name': 'my_GAT', 'model': my_GAT, 'hyperparameters': {'use_edge_attr': False, 'hidden_size': 128, 'num_layers': 1, 'num_attn_heads': 1}},
+    {'name': 'my_GAT_with_edge_attr', 'model': my_GAT, 'hyperparameters': {'use_edge_attr': True, 'hidden_size': 128, 'num_layers': 1, 'num_attn_heads': 1}},
+    {'name': 'my_GraphSAGE', 'model': my_GraphSAGE, 'hyperparameters': {'use_edge_attr': False, 'hidden_size': 128, 'num_layers': 1, 'num_attn_heads': 1}},
 ]
 
 ML_model_configs = [
     {'name': 'LinearRegression', 'model': LinearRegression, 'hyperparameters': {}},
-    {'name': 'MLP', 'model': MLP, 'hyperparameters': {'hidden_size': 128, 'num_layers': 3}},
-    {'name': 'RandomForest', 'model': RandomForestRegression, 'hyperparameters': {'n_estimators': 100, 'max_depth': None}}
 ]
+# gnn_model_configs = [
+#     {'name': 'my_GCN', 'model': my_GCN, 'hyperparameters': {'use_edge_attr': False, 'hidden_size': 128, 'num_layers': 1}},
+#     {'name': 'my_GCN_with_edge_attr', 'model': my_GCN, 'hyperparameters': {'use_edge_attr': True, 'hidden_size': 128, 'num_layers': 1}},
+#     {'name': 'my_GAT', 'model': my_GAT, 'hyperparameters': {'use_edge_attr': False, 'hidden_size': 128, 'num_layers': 1}},
+#     {'name': 'my_GAT_with_edge_attr', 'model': my_GAT, 'hyperparameters': {'use_edge_attr': True, 'hidden_size': 128, 'num_layers': 2}},
+#     {'name': 'GraphSAGE', 'model': GraphSAGE, 'hyperparameters': {'hidden_channels': 128, 'num_layers': 2, 'dropout': 0.2}, 'use_edge_attr': False}
+# ]
+
+# ML_model_configs = [
+#     {'name': 'LinearRegression', 'model': LinearRegression, 'hyperparameters': {}},
+#     {'name': 'MLP', 'model': MLP, 'hyperparameters': {'hidden_size': 128, 'num_layers': 3}},
+#     {'name': 'RandomForest', 'model': RandomForestRegression, 'hyperparameters': {'n_estimators': 100, 'max_depth': None}}
+# ]
+
+
 
 # gnn_model_configs = [
 #     {'name': 'my_GCN_1layer', 'model': my_GCN, 'hyperparameters': {'use_edge_attr': False, 'hidden_size': 128, 'num_layers': 1}},

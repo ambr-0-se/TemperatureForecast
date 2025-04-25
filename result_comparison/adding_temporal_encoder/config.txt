@@ -1,0 +1,45 @@
+Data preprocessing config:
+  Neighbors per station: 3
+  Time series: False
+  Temporal window: [1, 3, 5]
+
+Training config:
+  Train times: 2
+  Epochs: 150
+  Batch size: 256
+
+Models config:
+  _my_GCN:
+      Model: <class 'models.my_GCN'>
+      use_edge_attr: False
+      hidden_size: 128
+      num_layers: 1
+      num_attn_heads: 1
+  _my_GCN_with_edge_attr:
+      Model: <class 'models.my_GCN'>
+      use_edge_attr: True
+      hidden_size: 128
+      num_layers: 1
+      num_attn_heads: 1
+  _my_GAT:
+      Model: <class 'models.my_GAT'>
+      use_edge_attr: False
+      hidden_size: 128
+      num_layers: 1
+      num_attn_heads: 1
+  _my_GAT_with_edge_attr:
+      Model: <class 'models.my_GAT'>
+      use_edge_attr: True
+      hidden_size: 128
+      num_layers: 1
+      num_attn_heads: 1
+  _my_GraphSAGE:
+      Model: <class 'models.my_GraphSAGE'>
+      use_edge_attr: False
+      hidden_size: 128
+      num_layers: 1
+      num_attn_heads: 1
+
+  _LinearRegression:
+      Model: <class 'models.LinearRegression'>
+

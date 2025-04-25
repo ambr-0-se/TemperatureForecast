@@ -1,0 +1,21 @@
+Data preprocessing config:
+  Neighbors per station: 3
+  Time series: False
+  Temporal window: [3, 5, 7]
+
+Training config:
+  Train times: 2
+  Epochs: 150
+  Batch size: 256
+
+Models config:
+  _my_GraphSAGE:
+      Model: <class 'models.my_GraphSAGE'>
+      use_edge_attr: False
+      hidden_size: 128
+      num_layers: 2
+      num_attn_heads: 1
+
+  _LinearRegression:
+      Model: <class 'models.LinearRegression'>
+
